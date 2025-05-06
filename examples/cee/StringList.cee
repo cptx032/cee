@@ -1,0 +1,12 @@
+{
+    "name": "StringList",
+    "type": "template",
+    "template_path": "./LinkedList.Jinja2",
+    "output": "./StringList.c",
+    "context": {
+        "fields": [
+            {"type": "char*", "name": "value"}
+        ]
+    }
+}
+
