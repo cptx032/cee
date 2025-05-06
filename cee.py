@@ -21,9 +21,7 @@ class CEETemplate(BaseDTO):
     context: dict | None = None
 
     def get_context(self) -> dict:
-        context: dict = {
-            "name": self.name
-        }
+        context: dict = {"name": self.name}
         context.update(self.context or {})
         return context
 
@@ -37,9 +35,7 @@ def template_processor(content: dict) -> None:
     # fixme > check errors when creating the dto
     cee_template = CEETemplate(**content)
 
-    base_dir: str = os.path.join(
-        "./cee", os.path.dirname(cee_template.template_path)
-    )
+    base_dir: str = os.path.join("./cee", os.path.dirname(cee_template.template_path))
     file_name: str = os.path.basename(cee_template.template_path)
     full_template_path: str = os.path.join(base_dir, file_name)
 
@@ -47,12 +43,8 @@ def template_processor(content: dict) -> None:
         print(f"Template {full_template_path} doesnt exist")
         return
 
-    env = Environment(
-        loader=FileSystemLoader(base_dir)
-    )
-    jinja_template = env.get_template(
-        os.path.basename(cee_template.template_path)
-    )
+    env = Environment(loader=FileSystemLoader(base_dir))
+    jinja_template = env.get_template(os.path.basename(cee_template.template_path))
     # fixme > handle errors when rendering
     output_content = jinja_template.render(cee_template.get_context())
     output_path: str = os.path.join("./cee", cee_template.output)
@@ -60,18 +52,16 @@ def template_processor(content: dict) -> None:
         writer.write(output_content)
 
 
-type_processors: dict[str, Callable] = {
-    "template": template_processor
-}
+type_processors: dict[str, Callable] = {"template": template_processor}
 
 
-def process_cee_file(cee_content: str) -> None:
+def process_cee_file(cee_content: dict) -> None:
     required_keys: tuple[str, ...] = ("name", "type")
     for required_key in required_keys:
         if required_key not in content:
             print(f"{required_key} not found in {cee_file_name}")
             return
-    cee_type: str = cee_content.get("type")
+    cee_type: str = cee_content.get("type", "")
     if cee_type not in type_processors:
         print(f"Unknown {cee_type}")
         return
@@ -84,7 +74,7 @@ for cee_file_name in glob.glob(cee_files):
         content: dict
         try:
             content = json.loads(cee_file.read())
-        except:
+        except json.decoder.JSONDecodeError:
             print(f"It was not possible to parse the file {cee_file_name}")
             continue
         process_cee_file(content)
