@@ -1,80 +1,77 @@
-import argparse
 import glob
-import os
-import json
-from typing import Callable
-
-from jinja2 import Environment, FileSystemLoader
-from dataclasses import dataclass
+import cee_core
+from plugins import random_ext, func_ext
+from typing import Type
 
 
-@dataclass
-class BaseDTO:
-    name: str
-    type: str
+def get_all_cee_files() -> list[str]:
+    return glob.glob("./*.cee")
 
 
-@dataclass
-class CEETemplate(BaseDTO):
-    template_path: str
-    output: str
-    context: dict | None = None
+plugins: list[Type] = [random_ext.RandomKeywordPlugin, func_ext.FuncPlugin]
 
-    def get_context(self) -> dict:
-        context: dict = {"name": self.name}
-        context.update(self.context or {})
-        return context
+if __name__ == "__main__":
+    source = """
 
+@func main() int {
+    printf("hey");
+    return 0;
+}
 
-parser = argparse.ArgumentParser()
-parser.add_argument("path", default=".")
-args = parser.parse_args()
+"""
+    for plugin in plugins:
+        while command := cee_core.get_cee_command(source, plugin.name):
+            if not plugin.is_command_valid(command):
+                print("Invalid Command")
+                break
 
+            changes_to_do: cee_core.SourceCodeChanges = plugin.get_proposed_changes(
+                command
+            )
+            if not changes_to_do.is_valid():
+                print("Invalid Changes")
+                break
 
-def template_processor(content: dict) -> None:
-    # fixme > check errors when creating the dto
-    cee_template = CEETemplate(**content)
+            if changes_to_do.replacement_text:
+                source = cee_core.replace_source(
+                    source,
+                    command.start_pos,
+                    command.end_pos,
+                    changes_to_do.replacement_text,
+                )
+    print(source)
 
-    base_dir: str = os.path.join("./cee", os.path.dirname(cee_template.template_path))
-    file_name: str = os.path.basename(cee_template.template_path)
-    full_template_path: str = os.path.join(base_dir, file_name)
+"""
+@import arena.cee
+// what this does is: is replaces by #include "./.cee/arena.c"
 
-    if not os.path.exists(full_template_path):
-        print(f"Template {full_template_path} doesnt exist")
-        return
+@func main(int argc) int {
+    return 0;
+}
+// just revert the order
 
-    env = Environment(loader=FileSystemLoader(base_dir))
-    jinja_template = env.get_template(os.path.basename(cee_template.template_path))
-    # fixme > handle errors when rendering
-    output_content = jinja_template.render(cee_template.get_context())
-    output_path: str = os.path.join("./cee", cee_template.output)
-    with open(output_path, "w") as writer:
-        writer.write(output_content)
+@func (int argc) int {
+    return 0;
+}
+// so we can use as:
+register_handler(@func {
+    printf("%s\n", "Hey!");
+});
 
+// it is the same as the function, but without name
 
-type_processors: dict[str, Callable] = {"template": template_processor}
+struct myStruct
+{
+    int @random {my_pointer};
+};
+// when transpiled, it will become:
+struct myStruct
+{
+    int xouh87hfu;
+};
 
+@test {
+    @assert 1 == 1
+}
 
-def process_cee_file(cee_content: dict) -> None:
-    required_keys: tuple[str, ...] = ("name", "type")
-    for required_key in required_keys:
-        if required_key not in content:
-            print(f"{required_key} not found in {cee_file_name}")
-            return
-    cee_type: str = cee_content.get("type", "")
-    if cee_type not in type_processors:
-        print(f"Unknown {cee_type}")
-        return
-    type_processors[cee_type](content)
-
-
-cee_files = os.path.join(args.path, "cee/*.cee")
-for cee_file_name in glob.glob(cee_files):
-    with open(cee_file_name) as cee_file:
-        content: dict
-        try:
-            content = json.loads(cee_file.read())
-        except json.decoder.JSONDecodeError:
-            print(f"It was not possible to parse the file {cee_file_name}")
-            continue
-        process_cee_file(content)
+"""
