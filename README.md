@@ -90,3 +90,4 @@ This plugin is not intended to be really serious, you can use it to create some 
 - some kind of `for` command
 - lambda functions
 - inline unit testing `@test {}`
+- allow plugins configurations, so if I want to enable/disable the function auto-comma I can say `@config { func -enable_auto_comma }.`
