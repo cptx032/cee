@@ -3,7 +3,7 @@ import random
 import cee_core
 
 
-class RandomKeywordPlugin:
+class Plugin:
     name: str = "random"
     names: dict[str, str] = {}
 
@@ -24,8 +24,6 @@ class RandomKeywordPlugin:
         command: cee_core.CeeCommand,
     ) -> cee_core.SourceCodeChanges:
         name: str = command.body.strip()
-        if name not in RandomKeywordPlugin.names:
-            RandomKeywordPlugin.names[name] = RandomKeywordPlugin.random_word(5)
-        return cee_core.SourceCodeChanges(
-            replacement_text=RandomKeywordPlugin.names[name]
-        )
+        if name not in Plugin.names:
+            Plugin.names[name] = Plugin.random_word(5)
+        return cee_core.SourceCodeChanges(replacement_text=Plugin.names[name])

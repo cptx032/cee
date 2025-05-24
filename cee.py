@@ -1,74 +1,44 @@
-import glob
+import shutil
+import sys
 import cee_core
-from plugins import random_ext, func_ext
-from typing import Type
+import os
 
 
-def get_all_cee_files() -> list[str]:
-    return glob.glob("./*.cee")
+def clear_cee_folder() -> None:
+    cee_folder: str = cee_core.get_cee_folder()
+    if os.path.exists(cee_folder):
+        shutil.rmtree(cee_folder)
+    os.mkdir(cee_folder)
 
 
-plugins: list[Type] = [random_ext.RandomKeywordPlugin, func_ext.FuncPlugin]
+def process_cee_file_from_cmd(cmd: str) -> str:
+    if not cmd.endswith(".cee"):
+        return cmd
+
+    print(f"Processing {cmd}")
+    return cee_core.transpile_cee_source(cmd)
+
 
 if __name__ == "__main__":
-    source = """
-
-@func main() int {
-    printf("hey");
-    return 0;
-}
-
-"""
-    for plugin in plugins:
-        while command := cee_core.get_cee_command(source, plugin.name):
-            if not plugin.is_command_valid(command):
-                print("Invalid Command")
-                break
-
-            changes_to_do: cee_core.SourceCodeChanges = plugin.get_proposed_changes(
-                command
-            )
-            if not changes_to_do.is_valid():
-                print("Invalid Changes")
-                break
-
-            if changes_to_do.replacement_text:
-                source = cee_core.replace_source(
-                    source,
-                    command.start_pos,
-                    command.end_pos,
-                    changes_to_do.replacement_text,
-                )
-    print(source)
+    clear_cee_folder()
+    cmd_arguments = map(process_cee_file_from_cmd, sys.argv[1:])
+    command_to_run = " ".join(cmd_arguments)
+    print(f"Running {command_to_run}")
+    os.system(command_to_run)
 
 """
 @import arena.cee
 // what this does is: is replaces by #include "./.cee/arena.c"
 
-@func main(int argc) int {
-    return 0;
-}
-// just revert the order
-
 @func (int argc) int {
     return 0;
 }
-// so we can use as:
+// we can use as:
 register_handler(@func {
     printf("%s\n", "Hey!");
 });
 
 // it is the same as the function, but without name
-
-struct myStruct
-{
-    int @random {my_pointer};
-};
-// when transpiled, it will become:
-struct myStruct
-{
-    int xouh87hfu;
-};
 
 @test {
     @assert 1 == 1

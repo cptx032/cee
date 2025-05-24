@@ -1,10 +1,41 @@
+import glob
+import os
 import enum
 import string
 import dataclasses
+import importlib
+from typing import Type, Final
+
+
+PLUGIN_CLASS_NAME: Final[str] = "Plugin"
+CEE_STARTING_CHAR: Final[str] = "@"
+CEE_FILE_EXTENSION: Final[str] = ".cee"
+
+
+def get_cee_folder() -> str:
+    current_directory: str = os.getcwd()
+    return os.path.join(current_directory, CEE_FILE_EXTENSION)
+
+
+def get_plugins() -> list[Type]:
+    py_files = glob.glob(os.path.join(os.path.dirname(__file__), "plugins", "*.py"))
+    modules: list[Type] = []
+    for py_file in py_files:
+        module_path = (
+            py_file.replace(os.path.dirname(__file__), "")
+            .replace("/", ".")
+            .replace(".py", "")
+        )
+        if module_path.startswith("."):
+            module_path = module_path[1:]
+        module = importlib.import_module(module_path)
+        if PLUGIN_CLASS_NAME in dir(module):
+            modules.append(module.Plugin)
+    return modules
 
 
 def is_cee_keyword_valid(cee_keyword: str) -> bool:
-    cee_keyword = cee_keyword.replace("@", "")
+    cee_keyword = cee_keyword.replace(CEE_STARTING_CHAR, "")
     for c in cee_keyword.lower():
         if c not in string.ascii_lowercase:
             return False
@@ -40,8 +71,8 @@ def get_cee_command(source_code: str, cee_keyword: str) -> CeeCommand | None:
         raise ValueError("Invalid cee keyword")
 
     cee_keyword = cee_keyword.strip()
-    if not cee_keyword.startswith("@"):
-        cee_keyword = f"@{cee_keyword}"
+    if not cee_keyword.startswith(CEE_STARTING_CHAR):
+        cee_keyword = f"{CEE_STARTING_CHAR}{cee_keyword}"
 
     # the empty space in the end is to avoid names collision
     cee_keyword += " "
@@ -93,3 +124,33 @@ def get_cee_command(source_code: str, cee_keyword: str) -> CeeCommand | None:
 
 def replace_source(source: str, start: int, end: int, new_source: str) -> str:
     return source[:start] + new_source + source[end:]
+
+
+def transpile_cee_source(input_file_path: str) -> str:
+    with open(input_file_path) as source_c_file:
+        source_content = source_c_file.read()
+    for plugin in get_plugins():
+        while command := get_cee_command(source_content, plugin.name):
+            if not plugin.is_command_valid(command):
+                print("Invalid Command")
+                break
+
+            changes_to_do: SourceCodeChanges = plugin.get_proposed_changes(command)
+            if not changes_to_do.is_valid():
+                print("Invalid Changes")
+                break
+
+            if changes_to_do.replacement_text:
+                source_content = replace_source(
+                    source_content,
+                    command.start_pos,
+                    command.end_pos,
+                    changes_to_do.replacement_text,
+                )
+    new_file_name = os.path.join(
+        get_cee_folder(), input_file_path.replace(CEE_FILE_EXTENSION, ".c")
+    )
+    print(f"Writing to: {new_file_name}")
+    with open(new_file_name, "w") as new_source:
+        new_source.write(source_content)
+    return new_file_name

@@ -2,7 +2,7 @@ import cee_core
 import re
 
 
-class FuncPlugin:
+class Plugin:
     name: str = "func"
 
     @staticmethod
@@ -20,8 +20,8 @@ class FuncPlugin:
         command: cee_core.CeeCommand,
     ) -> cee_core.SourceCodeChanges:
         arguments: str = command.arguments.strip()
-        open_indexes = FuncPlugin.find_all_indexes(arguments, "(")
-        close_indexes = FuncPlugin.find_all_indexes(arguments, ")")
+        open_indexes = Plugin.find_all_indexes(arguments, "(")
+        close_indexes = Plugin.find_all_indexes(arguments, ")")
         if len(open_indexes) != len(close_indexes):
             raise ValueError("Some parenthesis not closed")
         if not open_indexes:
