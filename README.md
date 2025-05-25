@@ -23,6 +23,8 @@ The same for the body, you will receive just a string with the content of the bo
 
 The idea is also that each plugin should be **context-free**. This means that the result of a plugin should not be dependant of another plugin. This allow a more simple structure inside the project and a more consistent behavior for each plugin.
 
+Futhermore, each plugin can have multiple command names, this means that to create a function, for example, you can use `@function`, but you also can use `@def`, or `@fn` and so on. We usually like to include all the names from the most commons programming languages, since most of them doesnt conflicts. So if you are coming from Go, you can use `func`, if you are coming from Python you can keep the `@def` usage etc.
+
 ## Current Plugins
 
 For a while, the project has not so many features. Below we list the features that Cee supports today:
@@ -85,6 +87,7 @@ myself.jfurb = 123;
 This plugin is not intended to be really serious, you can use it to create some randoms characters in the place you want, but the intention is not to perform some kind of private field in the OPP term.
 
 ### module
+For a while, the `module`
 
 
 ## The future: the things we want to support:
@@ -93,3 +96,4 @@ This plugin is not intended to be really serious, you can use it to create some 
 - lambda functions
 - inline unit testing `@test {}`
 - allow plugins configurations, so if I want to enable/disable the function auto-comma I can say `@config { func -enable_auto_comma }.`
+- a command like `cee show commands`
