@@ -21,8 +21,6 @@ The arguments are not parsed, when implementing a new command, you will receive 
 
 The same for the body, you will receive just a string with the content of the body.
 
-The idea is also that each plugin should be **context-free**. This means that the result of a plugin should not be dependant of another plugin. This allow a more simple structure inside the project and a more consistent behavior for each plugin.
-
 Futhermore, each plugin can have multiple command names, this means that to create a function, for example, you can use `@function`, but you also can use `@def`, or `@fn` and so on. We usually like to include all the names from the most commons programming languages, since most of them doesnt conflicts. So if you are coming from Go, you can use `func`, if you are coming from Python you can keep the `@def` usage etc.
 
 ## Current Plugins
