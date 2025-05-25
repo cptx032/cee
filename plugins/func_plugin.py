@@ -13,6 +13,7 @@ class Plugin:
         "routine",
         "sub",
     ]
+    prefix: str = ""
 
     @staticmethod
     def is_command_valid(command: cee_core.CeeCommand) -> bool:
@@ -38,7 +39,7 @@ class Plugin:
         if not close_indexes:
             raise ValueError("Missing parenthesis")
 
-        function_name: str = arguments[: open_indexes[0]].strip()
+        function_name: str = Plugin.prefix + arguments[: open_indexes[0]].strip()
         return_type: str = arguments[close_indexes[-1] + 1 :].strip()
         if not return_type:
             return_type = "void"
