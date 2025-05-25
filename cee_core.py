@@ -154,6 +154,12 @@ def replace_source(source: str, start: int, end: int, new_source: str) -> str:
 
 
 def transpile_cee_source(input_file_path: str) -> str:
+    new_file_name = os.path.join(
+        get_cee_folder(), input_file_path.replace(CEE_FILE_EXTENSION, ".c")
+    )
+    if os.path.exists(new_file_name):
+        return new_file_name
+
     with open(input_file_path) as source_c_file:
         source_content = source_c_file.read()
 
@@ -175,9 +181,6 @@ def transpile_cee_source(input_file_path: str) -> str:
                     command.end_pos,
                     changes_to_do.replacement_text,
                 )
-    new_file_name = os.path.join(
-        get_cee_folder(), input_file_path.replace(CEE_FILE_EXTENSION, ".c")
-    )
     print(f"Writing to: {new_file_name}")
     with open(new_file_name, "w") as new_source:
         new_source.write(source_content)
