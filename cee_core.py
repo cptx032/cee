@@ -14,11 +14,24 @@ CEE_FILE_EXTENSION: Final[str] = ".cee"
 
 def get_cee_folder() -> str:
     current_directory: str = os.getcwd()
-    return os.path.join(current_directory, CEE_FILE_EXTENSION)
+    return os.path.join(current_directory, ".cee_build")
+
+
+def normalize_name(name: str, replace_char: str = "_", prefix: str = "") -> str:
+    final_name: str = ""
+    for c in name:
+        if c in string.ascii_letters:
+            final_name += c
+        elif c.isdigit():
+            final_name += c
+        else:
+            final_name += replace_char
+    return prefix + final_name
 
 
 def get_plugins() -> list[Type]:
     py_files = glob.glob(os.path.join(os.path.dirname(__file__), "plugins", "*.py"))
+    py_files += glob.glob(os.path.join(os.getcwd(), ".cee", "plugins", "*.py"))
     modules: list[Type] = []
     for py_file in py_files:
         module_path = (

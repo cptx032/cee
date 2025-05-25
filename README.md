@@ -21,6 +21,8 @@ The arguments are not parsed, when implementing a new command, you will receive 
 
 The same for the body, you will receive just a string with the content of the body.
 
+The idea is also that each plugin should be **context-free**. This means that the result of a plugin should not be dependant of another plugin. This allow a more simple structure inside the project and a more consistent behavior for each plugin.
+
 ## Current Plugins
 
 For a while, the project has not so many features. Below we list the features that Cee supports today:
@@ -82,6 +84,8 @@ myself.jfurb = 123;
 
 This plugin is not intended to be really serious, you can use it to create some randoms characters in the place you want, but the intention is not to perform some kind of private field in the OPP term.
 
+### module
+
 
 ## The future: the things we want to support:
 - plugins name alias, so `@func` could also be `@fun`, `@fn`, `@def`, `@proc`, `@procedure`, `@routine`, `@defun`, `@sub`, `@function`...
@@ -91,3 +95,4 @@ This plugin is not intended to be really serious, you can use it to create some 
 - lambda functions
 - inline unit testing `@test {}`
 - allow plugins configurations, so if I want to enable/disable the function auto-comma I can say `@config { func -enable_auto_comma }.`
+- module rename to `@package`, `@mod`, `@unit`, `@defpackage`, `@library`, `@lib`

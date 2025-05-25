@@ -1,0 +1,10 @@
+@import {stdio}
+
+@module {
+
+    @func helloworld() {
+        printf("%s\n", "Hello World!");
+    }
+
+}
+
