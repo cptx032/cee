@@ -79,19 +79,33 @@ class SourceCodeChanges:
         return any([self.replacement_text, self.new_imports, self.new_functions])
 
 
-def get_cee_command(source_code: str, cee_keyword: str) -> CeeCommand | None:
-    if not is_cee_keyword_valid(cee_keyword):
-        raise ValueError("Invalid cee keyword")
+def get_cee_command(
+    source_code: str, cee_keywords: str | list[str]
+) -> CeeCommand | None:
+    if type(cee_keywords) is str:
+        cee_keywords = [cee_keywords]
 
-    cee_keyword = cee_keyword.strip()
-    if not cee_keyword.startswith(CEE_STARTING_CHAR):
-        cee_keyword = f"{CEE_STARTING_CHAR}{cee_keyword}"
+    cee_keyword: str | None = None
+    index: int = -1
+    for keyword in cee_keywords:
+        if not is_cee_keyword_valid(keyword):
+            raise ValueError("Invalid cee keyword")
 
-    # the empty space in the end is to avoid names collision
-    cee_keyword += " "
+        keyword = keyword.strip()
+        if not keyword.startswith(CEE_STARTING_CHAR):
+            keyword = f"{CEE_STARTING_CHAR}{keyword}"
 
-    index = source_code.find(cee_keyword)
-    if index == -1:
+        # the empty space in the end is to avoid names collision
+        keyword += " "
+
+        index = source_code.find(keyword)
+        if index == -1:
+            continue
+        else:
+            cee_keyword = keyword
+            break
+
+    if cee_keyword is None:
         return None
 
     curly_brace_end: int | None = None
@@ -142,6 +156,7 @@ def replace_source(source: str, start: int, end: int, new_source: str) -> str:
 def transpile_cee_source(input_file_path: str) -> str:
     with open(input_file_path) as source_c_file:
         source_content = source_c_file.read()
+
     for plugin in get_plugins():
         while command := get_cee_command(source_content, plugin.name):
             if not plugin.is_command_valid(command):

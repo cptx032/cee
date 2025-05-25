@@ -3,7 +3,16 @@ import re
 
 
 class Plugin:
-    name: str = "func"
+    name: str | list[str] = [
+        "func",
+        "function",
+        "fn",
+        "def",
+        "proc",
+        "procedure",
+        "routine",
+        "sub",
+    ]
 
     @staticmethod
     def is_command_valid(command: cee_core.CeeCommand) -> bool:

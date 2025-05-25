@@ -2,7 +2,15 @@ import cee_core
 
 
 class Plugin:
-    name: str = "import"
+    name: str | list[str] = [
+        "import",
+        "use",
+        "load",
+        "require",
+        "include",
+        "using",
+        "uses",
+    ]
 
     @staticmethod
     def is_command_valid(command: cee_core.CeeCommand) -> bool:

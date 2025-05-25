@@ -4,7 +4,7 @@ import cee_core
 
 
 class Plugin:
-    name: str = "random"
+    name: str | list[str] = ["random"]
     names: dict[str, str] = {}
 
     @staticmethod

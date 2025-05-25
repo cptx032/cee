@@ -1,8 +1,8 @@
 @import {stdio}
 
-@module {
+@package hello world {
 
-    @func helloworld() {
+    @def helloworld() {
         printf("%s\n", "Hello World!");
     }
 

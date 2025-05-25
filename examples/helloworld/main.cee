@@ -1,7 +1,9 @@
 @import {stdio}
 @import {helloworld.cee}
 
-@func main() int {
-    helloworld();
-    return 0;
+@lib main {
+    @fn main() int {
+        helloworld();
+        return 0;
+    }
 }

@@ -12,7 +12,7 @@ MODULE_TEMPLATE: Final[str] = """
 
 
 class Plugin:
-    name: str = "module"
+    name: str | list[str] = ["module", "package", "mod", "unit", "library", "lib"]
     name_length: int = 5
     names: list[str] = []
 
@@ -23,8 +23,6 @@ class Plugin:
 
     @staticmethod
     def is_command_valid(command: cee_core.CeeCommand) -> bool:
-        if command.arguments.strip() != "":
-            return False
         return True
 
     @staticmethod
