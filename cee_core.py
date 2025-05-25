@@ -182,6 +182,9 @@ def transpile_cee_source(input_file_path: str) -> str:
                     changes_to_do.replacement_text,
                 )
     print(f"Writing to: {new_file_name}")
+    if os.path.dirname(new_file_name):
+        os.makedirs(os.path.dirname(new_file_name), exist_ok=True)
+
     with open(new_file_name, "w") as new_source:
         new_source.write(source_content)
     return new_file_name
