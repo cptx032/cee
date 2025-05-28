@@ -144,7 +144,7 @@ bool result = filter_number(__lambda_qtpia, number);
 ## The future: the things we want to support:
 - auto-comma insertion on functions
 - some kind of `for` command
-- lambda functions
 - inline unit testing `@test {}`
 - allow plugins configurations, so if I want to enable/disable the function auto-comma I can say `@config { func -enable_auto_comma }.`
 - a command like `cee show commands`
+- jinja templates for some kind of generic programming
