@@ -1,4 +1,5 @@
 import cee_core
+import cee_utils
 
 
 class Plugin:
@@ -22,18 +23,24 @@ class Plugin:
     def get_proposed_changes(
         command: cee_core.CeeCommand,
     ) -> cee_core.SourceCodeChanges:
-        name: str = command.body.strip()[1:-1].strip()
-        endswith_h: bool = name.endswith(".h")
-        endswith_c: bool = name.endswith(".c")
-        endswith_cee: bool = name.endswith(cee_core.CEE_FILE_EXTENSION)
+        libs: list[str] = [
+            lib.strip() for lib in command.body.strip()[1:-1].strip().split(",")
+        ]
 
-        replacement_text: str = ""
-        if endswith_c or endswith_h:
-            replacement_text = f"#include <{name}>"
-        elif endswith_cee:
-            new_path: str = cee_core.transpile_cee_source(name)
-            replacement_text = f'#include "{new_path}"'
-        else:
-            replacement_text = f"#include <{name}.h>"
+        includes: list[str] = []
+        for lib in libs:
+            endswith_h: bool = lib.endswith(".h")
+            endswith_c: bool = lib.endswith(".c")
+            endswith_cee: bool = lib.endswith(cee_core.CEE_FILE_EXTENSION)
 
-        return cee_core.SourceCodeChanges(replacement_text=replacement_text)
+            replacement_text: str = ""
+            if endswith_c or endswith_h:
+                replacement_text = f"#include <{lib}>"
+            elif endswith_cee:
+                new_path: str = cee_utils.transpile_cee_source(lib)
+                replacement_text = f'#include "{new_path}"'
+            else:
+                replacement_text = f"#include <{lib}.h>"
+            includes.append(replacement_text)
+
+        return cee_core.SourceCodeChanges(replacement_text="\n".join(includes))

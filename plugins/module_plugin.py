@@ -1,6 +1,7 @@
 import string
 import random
 import cee_core
+import cee_utils
 from typing import Final
 
 MODULE_TEMPLATE: Final[str] = """
@@ -32,7 +33,7 @@ class Plugin:
         name: str = command.arguments.strip()
         if not name:
             name = Plugin.random_word()
-        name = cee_core.normalize_name(name, prefix="__").upper()
+        name = cee_utils.normalize_name(name, prefix="__").upper()
         if name not in Plugin.names:
             Plugin.names.append(name)
         return cee_core.SourceCodeChanges(

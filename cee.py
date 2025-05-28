@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import shutil
 import sys
-import cee_core
+import cee_utils
 import os
 
 
 def clear_cee_folder() -> None:
-    cee_folder: str = cee_core.get_cee_folder()
+    cee_folder: str = cee_utils.get_cee_folder()
     if os.path.exists(cee_folder):
         shutil.rmtree(cee_folder)
     os.mkdir(cee_folder)
@@ -17,7 +17,7 @@ def process_cee_file_from_cmd(cmd: str) -> str:
         return cmd
 
     print(f"Processing {cmd}")
-    return cee_core.transpile_cee_source(cmd)
+    return cee_utils.transpile_cee_source(cmd)
 
 
 if __name__ == "__main__":
