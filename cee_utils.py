@@ -5,11 +5,24 @@ import string
 import importlib
 from typing import Type
 import cee_core
+import random
 
 
 def get_cee_folder() -> str:
     current_directory: str = os.getcwd()
     return os.path.join(current_directory, ".cee_build")
+
+
+random_names_created: list = []
+
+
+def random_name(length: int, prefix: str = ""):
+    letters = string.ascii_lowercase
+    name = prefix + "".join(random.choice(letters) for i in range(length))
+    if name in random_names_created:
+        return random_name(length, prefix)
+    random_names_created.append(name)
+    return name
 
 
 def normalize_name(name: str, replace_char: str = "_", prefix: str = "") -> str:
@@ -246,3 +259,26 @@ def transpile_cee_source(input_file_path: str) -> str:
     with open(new_file_name, "w") as new_source:
         new_source.write(source_content)
     return new_file_name
+
+
+def include_semicolon_in_body(command: cee_core.CeeCommand) -> None:
+    # module plugin
+    source_lines: list[str] = command.body.split("\n")
+    final_source: list[str] = []
+    for line in source_lines:
+        # empty line
+        if not line.strip():
+            final_source.append(line)
+        # commads that not end in this line
+        elif line.strip()[-1] in ",{}=;":
+            final_source.append(line)
+        # comments
+        elif line.strip().startswith("//"):
+            # fixme > handle multiline comments
+            final_source.append(line)
+        # macros
+        elif line.strip().startswith("#"):
+            final_source.append(line)
+        else:
+            final_source.append(f"{line};")
+    command.body = "\n".join(final_source)

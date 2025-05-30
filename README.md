@@ -68,6 +68,15 @@ you can see that we can omit the void in the arguments and in the return type. T
 }
 ```
 
+Also, a function created with `@function` can omit the semicolon, it will be inserted automatically:
+```c
+@fn sum(int a, int b) int {
+    int result = a + b
+    printf("Sum %d + %d = %d\n", a, b, result)
+    return a + b
+}
+```
+
 ### Random fields
 This idea comes from the "private" fields in Python, that are class fields starting with double underscores (`__field`). What Python does is just renaming that field to `_ClassName__field`. The idea of the random command is allow something similar, but instead of putting the class name, we just create random characters:
 ```c
@@ -142,7 +151,6 @@ bool result = filter_number(__lambda_qtpia, number);
 
 
 ## The future: the things we want to support:
-- auto-comma insertion on functions
 - some kind of `for` command
 - inline unit testing `@test {}`
 - allow plugins configurations, so if I want to enable/disable the function auto-comma I can say `@config { func -enable_auto_comma }.`

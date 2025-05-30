@@ -1,7 +1,6 @@
 import cee_core
+import cee_utils
 import re
-import random
-import string
 
 
 class Plugin:
@@ -18,6 +17,7 @@ class Plugin:
     prefix: str = ""
     lambda_prefix: str = "__lambda_"
     lambda_length: int = 5
+    auto_comma: bool = True
 
     @staticmethod
     def is_command_valid(command: cee_core.CeeCommand) -> bool:
@@ -31,9 +31,7 @@ class Plugin:
 
     @staticmethod
     def random_word() -> str:
-        letters = string.ascii_lowercase
-        # fixme > check if the random name generated is inside the list
-        return "".join(random.choice(letters) for i in range(Plugin.lambda_length))
+        return cee_utils.random_name(Plugin.lambda_length, Plugin.lambda_prefix)
 
     @staticmethod
     def get_proposed_changes(
@@ -42,6 +40,9 @@ class Plugin:
         arguments: str = command.arguments.strip()
         open_indexes = Plugin.find_all_indexes(arguments, "(")
         close_indexes = Plugin.find_all_indexes(arguments, ")")
+        # make possible not use parenthesys in case of void arguments
+        # make possible to use Python style returns: ->
+        # make possible to use Python style arguments type: name: Type
         if len(open_indexes) != len(close_indexes):
             raise ValueError("Some parenthesis not closed")
         if not open_indexes:
@@ -61,6 +62,9 @@ class Plugin:
         if not function_arguments:
             function_arguments = "void"
 
+        if Plugin.auto_comma:
+            cee_utils.include_semicolon_in_body(command)
+
         function_source_code: str = (
             f"{return_type} {function_name}({function_arguments}) {command.body}"
         )
@@ -68,7 +72,7 @@ class Plugin:
         if function_name:
             return cee_core.SourceCodeChanges(replacement_text=function_source_code)
         # handling the lambdas
-        random_name: str = Plugin.lambda_prefix + Plugin.random_word()
+        random_name: str = Plugin.random_word()
         return cee_core.SourceCodeChanges(
             replacement_text=random_name,
             new_functions=f"{return_type} {random_name}({function_arguments}) {command.body}",

@@ -1,17 +1,15 @@
-import string
-import random
 import cee_core
+import cee_utils
 
 
 class Plugin:
     name: str | list[str] = ["random"]
     names: dict[str, str] = {}
+    name_length: int = 5
 
     @staticmethod
     def random_word(length: int) -> str:
-        letters = string.ascii_lowercase
-        # fixme > check if the random name generated is inside the list
-        return "".join(random.choice(letters) for i in range(length))
+        return cee_utils.random_name(Plugin.name_length)
 
     @staticmethod
     def is_command_valid(command: cee_core.CeeCommand) -> bool:
