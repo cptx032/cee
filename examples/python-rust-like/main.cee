@@ -1,0 +1,12 @@
+@import {stdio}
+
+
+@def sum(a: int, b: int) -> int {
+	return a + b
+}
+
+
+@fn main() -> int {
+	printf("%d\n", sum(2, 3));
+	return 0
+}

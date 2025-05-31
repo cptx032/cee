@@ -18,6 +18,7 @@ class Plugin:
     lambda_prefix: str = "__lambda_"
     lambda_length: int = 5
     auto_comma: bool = True
+    return_type_ignore_list: list[str] = ["->", ">", ":"]
 
     @staticmethod
     def is_command_valid(command: cee_core.CeeCommand) -> bool:
@@ -55,12 +56,24 @@ class Plugin:
         if not return_type:
             return_type = "void"
 
+        for ignore_char in Plugin.return_type_ignore_list:
+            return_type = return_type.replace(ignore_char, "")
+        return_type = return_type.strip()
+
         # arguments without parenthesis
         function_arguments: str = arguments[
             open_indexes[0] + 1 : close_indexes[-1]
         ].strip()
         if not function_arguments:
             function_arguments = "void"
+
+        argument_list: list[str] = [i.strip() for i in function_arguments.split(",")]
+        for argument_index, argument in enumerate(argument_list):
+            if ":" in argument:
+                name, name_type = [i.strip() for i in argument.split(":")]
+                argument_list[argument_index] = f"{name_type} {name}"
+
+        function_arguments = ", ".join(argument_list)
 
         if Plugin.auto_comma:
             cee_utils.include_semicolon_in_body(command)
