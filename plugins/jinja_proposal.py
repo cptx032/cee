@@ -2,15 +2,15 @@
 @template MyTemplate {"Hey {{ name }}!"}
 
 printf(
-        @template inline MyTemplate {"name": "Willie"}
+    @template inline MyTemplate {"name": "Willie"}
 );
 
 
 @template LinkedList {
-        typedef struct {{name}} {
-                {{type}} value;
-                struct {{name}} next*;
-        } {{name}};
+    typedef struct {{name}} {
+        {{type}} value;
+        struct {{name}} next*;
+    } {{name}};
 }
 
 
