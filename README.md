@@ -172,6 +172,35 @@ bool filter_number(bool (*number_operation)(int), int number) {
 bool result = filter_number(__lambda_qtpia, number);
 ```
 
+### defer
+Defer works as `defer` in GoLang, this means: as sson as the context ends, the command will be executed. The difference between Cee defer and GoLang defer is that the scope of the defer is set by using the curly-brackets:
+```c
+@fn most_common_word(file_path: char*) char* {
+    FILE *file_pointer = open(file_path)
+    @defer close(file_pointer) {
+        // a bunch of clever code
+        if (condition) {
+            return NULL;
+        }
+        return most_common_word_found;
+    }
+}
+```
+
+This will be translated to:
+```c
+@fn most_common_word(file_path: char*) char* {
+    FILE *file_pointer = open(file_path)
+    // a bunch of clever code
+    if (condition) {
+        close(file_pointer)
+        return NULL;
+    }
+    close(file_pointer)
+    return most_common_word_found;
+}
+```
+
 
 ## The future: the things we want to support:
 - some kind of `for/foreach` command
