@@ -2,7 +2,7 @@
 @template MyTemplate {"Hey {{ name }}!"}
 
 printf(
-    @template inline MyTemplate {"name": "Willie"}
+    @template apply MyTemplate {"name": "Willie"}
 );
 
 
@@ -12,7 +12,4 @@ printf(
         struct {{name}} next*;
     } {{name}};
 }
-
-
-@template outline LinkedList {"type": int, "name": "IntegerLinkedList"}
 """

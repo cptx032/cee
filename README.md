@@ -4,7 +4,13 @@ The main goal of CEE is to be some kind of C pre-processor with superpowers. So 
 So, for example, the idea is that you can create an `async` keyword for the C programming language if you want, a `defer`, create arena allocators with some kind of syntax similar to Python's `with` keyword, create a fancy for-loop iterator like `for i in array` etc.
 
 # Installation
-WIP
+Cee doesn't need any dependency. Just clone the repository and then you can do the following:
+```bash
+python my/cee/repo/cee.py gcc main.cee -o my_ouptut
+```
+This means: just repeat the compilation command as argument to the cee script and it will loop through the argument files looking for `.cee` files.
+
+For each `.cee` file it find, it will transpile it and move the newly created file into a `.cee_build` folder in the current folder.
 
 ## Basic Example
 This is how a typical .cee file looks like:
