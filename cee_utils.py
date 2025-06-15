@@ -1,3 +1,5 @@
+from pathlib import Path
+import importlib.util
 from plugins import import_plugin
 import glob
 import os
@@ -41,17 +43,19 @@ def get_plugins() -> list[Type]:
     py_files = glob.glob(os.path.join(os.path.dirname(__file__), "plugins", "*.py"))
     py_files += glob.glob(os.path.join(os.getcwd(), ".cee", "plugins", "*.py"))
     modules: list[Type] = []
+
     for py_file in py_files:
-        module_path = (
-            py_file.replace(os.path.dirname(__file__), "")
-            .replace("/", ".")
-            .replace(".py", "")
-        )
-        if module_path.startswith("."):
-            module_path = module_path[1:]
-        module = importlib.import_module(module_path)
+        module_path: Path = Path(py_file).resolve()
+        module_name: str = os.path.basename(py_file).replace(".py", "")
+        spec = importlib.util.spec_from_file_location(module_name, module_path)
+        if not spec:
+            raise ValueError("It was not possible to obtain the module spec")
+        module = importlib.util.module_from_spec(spec)
+        if not spec.loader:
+            raise ValueError("Loader not found")
+        spec.loader.exec_module(module)
         if cee_core.PLUGIN_CLASS_NAME in dir(module):
-            modules.append(module.Plugin)
+            modules.append(getattr(module, cee_core.PLUGIN_CLASS_NAME))
     return modules
 
 
