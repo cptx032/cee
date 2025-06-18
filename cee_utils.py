@@ -266,7 +266,7 @@ def transpile_cee_source(input_file_path: str) -> str:
 
 
 def include_semicolon_in_body(command: cee_core.CeeCommand) -> None:
-    # module plugin
+    # fixme > implement the Microsoft way of using curly-braces
     source_lines: list[str] = command.body.split("\n")
     final_source: list[str] = []
     for line in source_lines:
