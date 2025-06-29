@@ -27,7 +27,6 @@
 
             printf("%s\n", "Appending using an object")
             StringList* an_item = stringlist_new(arena)
-            // printf("%s\n", "Here");
             an_item->value = "John"
             stringlist_append_object(my_string_list->first, an_item)
             printf("\n%s\n", "Iterating:");
