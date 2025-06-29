@@ -5,6 +5,9 @@
 }
 
 @once {
+    @fn stringlist_print(StringList* head, int index) {
+        printf("%d - %s\n", index, head->value);
+    }
     @fn main() -> int {
         @defer arena_free(arena) {
             Arena* arena = arena_new()
@@ -12,12 +15,23 @@
             stringlist_append(my_string_list, "My")
             stringlist_append(my_string_list, "name")
             stringlist_append(my_string_list, "is")
-            stringlist_append(my_string_list, "John")
 
-            while (my_string_list) {
-                printf("%s\n", my_string_list->value)
-                my_string_list = my_string_list->next
-            }
+            printf("Length: %d\n", my_string_list->length);
+            printf("First: %s\n", my_string_list->first->value);
+            printf("Second: %s\n", my_string_list->next->value);
+            printf("First using any item: %s\n", my_string_list->next->next->first->value);
+            printf("Last: %s\n", my_string_list->last->value);
+
+            printf("\n%s\n", "Iterating:");
+            stringlist_foreach(my_string_list, stringlist_print);
+
+            printf("%s\n", "Appending using an object")
+            StringList* an_item = stringlist_new(arena)
+            // printf("%s\n", "Here");
+            an_item->value = "John"
+            stringlist_append_object(my_string_list->first, an_item)
+            printf("\n%s\n", "Iterating:");
+            stringlist_foreach(my_string_list, stringlist_print);
             return 0
         }
     }

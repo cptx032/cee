@@ -54,7 +54,29 @@ bool {{ name | lower}}_is_empty({{ name }} *start)
 }
 {% endblock %}
 
-// fixme > _append_object
+void {{ name|lower }}_append_object(
+    {{ name }} *start, {{ name }}* object
+) {
+    if (!start) {
+        return;
+    }
+    if (object == NULL) {
+        return;
+    }
+
+    if ({{ name|lower }}_is_empty(start)) {
+        // fixme > add a warning saying that is not possible to include an
+        // object in a empty head
+        return;
+    }
+    start->length++;
+
+    object->first = start;
+    object->next = NULL;
+
+    start->last->next = object;
+    start->last = object;
+}
 
 {{ name }} *{{ name|lower }}_append(
     {{ name }} *start,
@@ -63,8 +85,7 @@ bool {{ name | lower}}_is_empty({{ name }} *start)
     {%- endfor %}
 )
 {
-    if (!start)
-    {
+    if (!start) {
         return NULL;
     }
     {%- if not allow_nulls %}
@@ -118,6 +139,22 @@ bool {{ name | lower}}_is_empty({{ name }} *start)
     return current;
 }
 
+void {{ name | lower }}_foreach(
+    {{ name }} *start, void (*item_handler)({{ name  }}*, int index)
+)
+{
+    {{ name }}* head = start;
+    if (!item_handler) {
+        return;
+    }
+    int index = 0;
+    while(head && !{{ name|lower }}_is_empty(head)) {
+        item_handler(head, index);
+        head = head->next;
+        index++;
+    }
+}
+
 {# fixme > remove_by_index() #}
 {#- fixme > remove_by_natural_key() -#}
 {#- fixme > allow duplicated natural key -#}
@@ -166,8 +203,7 @@ bool {{ name|lower }}_equal_by_natural_key(
     {{ items | join(', ') }}
 )
 {
-    while(start && !{{ name|lower }}_is_empty(start))
-    {
+    while(start && !{{ name|lower }}_is_empty(start)) {
         if ({{ name|lower }}_equal_by_natural_key(start, {{ fields | selectattr("natural_key", "equalto", true) | map(attribute="name") | join(", ") }})) {
             return start;
         }

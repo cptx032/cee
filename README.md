@@ -6,7 +6,7 @@ So, for example, the idea is that you can create an `async` keyword for the C pr
 # Installation
 Cee doesn't need any dependency. Just clone the repository and then you can do the following:
 ```bash
-python my/cee/repo/cee.py gcc main.cee -o my_ouptut
+python my/cee/repo/cee.py build gcc main.cee -o my_ouptut
 ```
 This means: just repeat the compilation command as argument to the cee script and it will loop through the argument files looking for `.cee` files.
 
@@ -222,14 +222,6 @@ WIP
 ## Rules
 - Each Plugin should return valid C code, this means in others words that a Plugin should not return Cee code, but a complete and valid C code.
 - Each plugin should do only one thing, this means that, if a plugin exist to define names only once, your plugin should not do this. If there's a plugin to remove semicolons, your plugin should not remove semicolons...and so on
-
-
-## The future: the things we want to support:
-- some kind of `for/foreach` command
-- inline unit testing `@test {}`
-- allow plugins configurations, so if I want to enable/disable the function auto-semicolon I can say `@config { func -enable_auto_semicolon }.`
-- a command like `cee show commands`
-- jinja templates for some kind of generic programming
 
 # How to create your own plugins
 
