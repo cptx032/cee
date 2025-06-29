@@ -11,7 +11,15 @@ MODULE_TEMPLATE: Final[str] = """
 
 
 class Plugin:
-    name: str | list[str] = ["module", "package", "mod", "unit", "library", "lib"]
+    name: str | list[str] = [
+        "module",
+        "package",
+        "mod",
+        "unit",
+        "library",
+        "lib",
+        "once",
+    ]
     name_length: int = 5
     names: list[str] = []
 

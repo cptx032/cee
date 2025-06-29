@@ -1,0 +1,24 @@
+@import {stdlib, stdio, stdbool, Arena.cee}
+
+@ll StringList {
+    "value": "char*"
+}
+
+@once {
+    @fn main() -> int {
+        @defer arena_free(arena) {
+            Arena* arena = arena_new()
+            StringList* my_string_list = stringlist_new(arena)
+            stringlist_append(my_string_list, "My")
+            stringlist_append(my_string_list, "name")
+            stringlist_append(my_string_list, "is")
+            stringlist_append(my_string_list, "John")
+
+            while (my_string_list) {
+                printf("%s\n", my_string_list->value)
+                my_string_list = my_string_list->next
+            }
+            return 0
+        }
+    }
+}

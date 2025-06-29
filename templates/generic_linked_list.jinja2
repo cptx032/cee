@@ -1,16 +1,13 @@
 {%- block includes -%}
 #include <stdlib.h>
 #include <stdbool.h>
-#include <hf/Arena.c>
+
 {%- if include_list %}
 {%- for include_item in include_list %}
 {{ include_item }}
 {%- endfor %}
 {%- endif %}
 {%- endblock %}
-
-#ifndef __{{ name | upper }}
-#define __{{ name | upper }}
 
 {%- block codeblock %}
 
@@ -57,6 +54,8 @@ bool {{ name | lower}}_is_empty({{ name }} *start)
 }
 {% endblock %}
 
+// fixme > _append_object
+
 {{ name }} *{{ name|lower }}_append(
     {{ name }} *start,
     {%- for field in fields %}
@@ -70,15 +69,13 @@ bool {{ name | lower}}_is_empty({{ name }} *start)
     }
     {%- if not allow_nulls %}
     {%- for field in fields %}
-    if ({{ field.name }} == NULL)
-    {
+    if ({{ field.name }} == NULL) {
         return NULL;
     }
     {%- endfor %}
     {%- endif %}
 
-    if ({{ name|lower }}_is_empty(start))
-    {
+    if ({{ name|lower }}_is_empty(start)) {
         {%- for field in fields %}
         start->{{ field.name }} = {{ field.name }};
         {%- endfor %}
@@ -112,11 +109,9 @@ bool {{ name | lower}}_is_empty({{ name }} *start)
     int random_index = rand() % start->length;
     int count = 0;
     {{ name }} *current = start;
-    while (count < random_index)
-    {
+    while (count < random_index) {
         count++;
-        if (current->next)
-        {
+        if (current->next) {
             current = current->next;
         }
     }
@@ -141,8 +136,7 @@ bool {{ name|lower }}_equal_by_natural_key(
     {{ items | join(', ') }}
 )
 {
-    if (!start)
-    {
+    if (!start) {
         return false;
     }
     {%- for field in fields %}
@@ -174,8 +168,7 @@ bool {{ name|lower }}_equal_by_natural_key(
 {
     while(start && !{{ name|lower }}_is_empty(start))
     {
-        if ({{ name|lower }}_equal_by_natural_key(start, {{ fields | selectattr("natural_key", "equalto", true) | map(attribute="name") | join(", ") }}))
-        {
+        if ({{ name|lower }}_equal_by_natural_key(start, {{ fields | selectattr("natural_key", "equalto", true) | map(attribute="name") | join(", ") }})) {
             return start;
         }
         start = start->next;
@@ -193,15 +186,12 @@ bool {{ name|lower }}_contains_by_natural_key(
       {%- endif -%}
     {%- endfor -%}
     {{ items | join(', ') }}
-)
-{
+) {
     {{ name }} *found = {{ name|lower }}_get_one_by_natural_key(start, {{ fields | selectattr("natural_key", "equalto", true) | map(attribute="name") | join(", ") }});
     if (found) {
         return true;
     }
     return false;
 }
-{% endif %}
-
-{% endblock %}
-#endif
+{%- endif -%}
+{%- endblock -%}

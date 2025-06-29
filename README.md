@@ -138,7 +138,7 @@ The `module` plugin creates the `#define` macro to avoid create symbols twice an
 }
 ```
 As you can see, you can create module names with blank spaces, accents etc. Note how the `struct` now doesn't need to use the semicolon anymore (but you still will need to use the `type name` format for each atttribute).
-You can use this command with the following keywords: `module, package, mod, unit, library, lib`
+You can use this command with the following keywords: `module, package, mod, unit, library, lib, once`
 
 ### delegate
 The delegate plugin is just a new way of defining pointers to functions. So instead of doing:
@@ -208,10 +208,26 @@ This will be translated to:
 ```
 
 
+### ll - Linked Lists
+```c
+@ll MyMap {
+    "key": "char*",
+    "value": "char*",
+    "natural_keys": ["key"]
+}
+```
+#### Natural Keys
+WIP
+
+## Rules
+- Each Plugin should return valid C code, this means in others words that a Plugin should not return Cee code, but a complete and valid C code.
+- Each plugin should do only one thing, this means that, if a plugin exist to define names only once, your plugin should not do this. If there's a plugin to remove semicolons, your plugin should not remove semicolons...and so on
+
+
 ## The future: the things we want to support:
 - some kind of `for/foreach` command
 - inline unit testing `@test {}`
-- allow plugins configurations, so if I want to enable/disable the function auto-comma I can say `@config { func -enable_auto_comma }.`
+- allow plugins configurations, so if I want to enable/disable the function auto-semicolon I can say `@config { func -enable_auto_semicolon }.`
 - a command like `cee show commands`
 - jinja templates for some kind of generic programming
 

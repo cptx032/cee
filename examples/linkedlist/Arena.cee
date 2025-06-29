@@ -1,0 +1,94 @@
+// clang-format off
+@import {stdlib, stdio}
+// clang-format on
+
+@package {
+    typedef struct Arena {
+        void* pointer;
+        int length;
+
+        struct Arena* first;
+        struct Arena* next;
+    } Arena;
+
+    @fn arena_is_empty(Arena* arena) bool {
+        return arena->first->length == 0
+    }
+
+    @fn arena_have_this_pointer(Arena* arena, void* pointer) bool {
+        Arena* current = arena
+        while (current && !arena_is_empty(arena)) {
+            if (current->pointer == pointer) {
+                return true
+            }
+            current = current->next
+        }
+        return false
+    }
+
+    @fn arena_new() Arena* {
+        Arena* arena = malloc(sizeof(Arena))
+        arena->length = 0
+        arena->pointer = NULL
+        arena->next = NULL
+        arena->first = arena
+        return arena
+    }
+
+    @fn arena_append(Arena* start, void* pointer) {
+        if (arena_have_this_pointer(start, pointer)) {
+            return
+        }
+        if (arena_is_empty(start)) {
+            start->pointer = pointer
+            start->length++
+            start->next = NULL
+            start->first = start
+            return
+        }
+        Arena* current = start
+        // fixme > implement last pointer in the arena
+        while (current && !arena_is_empty(current)) {
+            if (current->next) {
+                current = current->next
+            } else {
+                break
+            }
+        }
+        if (current == NULL) {
+            return
+        }
+        Arena* new_element = malloc(sizeof(Arena))
+        new_element->pointer = pointer
+        new_element->next = NULL
+        new_element->first = start
+        current->next = new_element
+        start->length++
+    }
+
+    @fn arena_malloc(Arena* arena, size_t pointer_size) void* {
+        void* pointer = malloc(pointer_size)
+        if (!pointer) {
+            perror("Error allocating memory in arena")
+            return NULL
+        }
+        arena_append(arena, pointer)
+        return pointer
+    }
+
+    @fn arena_free(Arena* start) {
+        Arena* current = start
+        while (current && !arena_is_empty(current)) {
+            Arena* next = current->next
+            if (current->pointer != NULL) {
+                free(current->pointer)
+                current->pointer = NULL
+            }
+            free(current)
+            current = next
+        }
+    }
+}
+
+
+

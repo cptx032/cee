@@ -1,8 +1,33 @@
 #!/usr/bin/env python3
 import shutil
-import sys
 import cee_utils
 import os
+import argparse
+import enum
+
+
+class ModeEnum(enum.StrEnum):
+    BUILD = "build"
+    TEST = "test"
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="CEE - C Extended Expressions")
+    parser.add_argument(
+        "mode", choices=[e.value for e in ModeEnum], help="Mode of operation"
+    )
+    parser.add_argument(
+        "args",
+        nargs=argparse.REMAINDER,
+        help="Arguments to pass to the build or test mode",
+    )
+    args = parser.parse_args()
+    if args.mode == ModeEnum.BUILD:
+        clear_cee_folder()
+        cmd_arguments = map(process_cee_file_from_cmd, args.args)
+        command_to_run = " ".join(cmd_arguments)
+        print(f"Running {command_to_run}")
+        os.system(command_to_run)
 
 
 def clear_cee_folder() -> None:
@@ -21,28 +46,4 @@ def process_cee_file_from_cmd(cmd: str) -> str:
 
 
 if __name__ == "__main__":
-    clear_cee_folder()
-    cmd_arguments = map(process_cee_file_from_cmd, sys.argv[1:])
-    command_to_run = " ".join(cmd_arguments)
-    print(f"Running {command_to_run}")
-    os.system(command_to_run)
-
-"""
-@import arena.cee
-// what this does is: is replaces by #include "./.cee/arena.c"
-
-@func (int argc) int {
-    return 0;
-}
-// we can use as:
-register_handler(@func {
-    printf("%s\n", "Hey!");
-});
-
-// it is the same as the function, but without name
-
-@test {
-    @assert 1 == 1
-}
-
-"""
+    main()
