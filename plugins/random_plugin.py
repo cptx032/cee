@@ -6,6 +6,7 @@ class Plugin:
     name: str | list[str] = ["random"]
     names: dict[str, str] = {}
     name_length: int = 5
+    description: str = "Generate random characters"
 
     @staticmethod
     def random_word(length: int) -> str:

@@ -3,6 +3,7 @@ import cee_core
 
 class Plugin:
     name: str | list[str] = ["delegate"]
+    description: str = "Alias for defining pointers to functions"
 
     @staticmethod
     def is_command_valid(command: cee_core.CeeCommand) -> bool:

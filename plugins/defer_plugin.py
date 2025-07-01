@@ -6,6 +6,10 @@ class Plugin:
     name: str | list[str] = [
         "defer",
     ]
+    description: str = (
+        "Responsible for guarantee that a function will be called before the "
+        "end of context"
+    )
 
     @staticmethod
     def is_command_valid(command: cee_core.CeeCommand) -> bool:

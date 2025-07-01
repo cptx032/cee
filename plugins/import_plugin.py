@@ -12,6 +12,9 @@ class Plugin:
         "using",
         "uses",
     ]
+    description: str = (
+        "Alias for #include .c/.h sources and the main transpiler for .cee sources"
+    )
 
     @staticmethod
     def is_command_valid(command: cee_core.CeeCommand) -> bool:

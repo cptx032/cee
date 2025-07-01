@@ -17,6 +17,7 @@ class Plugin:
     name: str | list[str] = ["ll", "linkedlist"]
     # fixme > when finding a bool field, include the stdbool in the include list
     allowed_types: tuple[str, ...] = ("char*", "float", "double", "int", "bool")
+    description: str = "Creates a linked list with the specified fields"
 
     @staticmethod
     def get_ll_name(command: cee_core.CeeCommand) -> str:

@@ -19,6 +19,7 @@ class Plugin:
     lambda_length: int = 5
     auto_comma: bool = True
     return_type_ignore_list: list[str] = ["->", ">", ":"]
+    description: str = "Create functions in C using a modern syntax"
 
     @staticmethod
     def is_command_valid(command: cee_core.CeeCommand) -> bool:

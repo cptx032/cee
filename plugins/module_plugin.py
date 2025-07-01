@@ -22,6 +22,7 @@ class Plugin:
     ]
     name_length: int = 5
     names: list[str] = []
+    description: str = "An alias for the #pragma once directive"
 
     @staticmethod
     def random_word() -> str:
