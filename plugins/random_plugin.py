@@ -1,10 +1,11 @@
 import cee_core
 import cee_utils
+import plugins_core
 
 
-class Plugin:
-    name: str | list[str] = ["random"]
-    names: dict[str, str] = {}
+class Plugin(plugins_core.BasePlugin):
+    names: list[str] = ["random"]
+    random_names: dict[str, str] = {}
     name_length: int = 5
     description: str = "Generate random characters"
 
@@ -12,17 +13,13 @@ class Plugin:
     def random_word(length: int) -> str:
         return cee_utils.random_name(Plugin.name_length)
 
-    @staticmethod
-    def is_command_valid(command: cee_core.CeeCommand) -> bool:
-        if command.arguments.strip() != "":
+    def is_command_valid(self) -> bool:
+        if self.command.arguments.strip() != "":
             return False
         return True
 
-    @staticmethod
-    def get_proposed_changes(
-        command: cee_core.CeeCommand,
-    ) -> cee_core.SourceCodeChanges:
-        name: str = command.body.strip()
-        if name not in Plugin.names:
-            Plugin.names[name] = Plugin.random_word(5)
-        return cee_core.SourceCodeChanges(replacement_text=Plugin.names[name])
+    def get_proposed_changes(self) -> cee_core.SourceCodeChanges:
+        name: str = self.command.body.strip()
+        if name not in Plugin.random_names:
+            Plugin.random_names[name] = Plugin.random_word(5)
+        return cee_core.SourceCodeChanges(replacement_text=Plugin.random_names[name])

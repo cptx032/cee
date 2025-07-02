@@ -1,9 +1,10 @@
 import cee_core
 import cee_utils
+import plugins_core
 
 
-class Plugin:
-    name: str | list[str] = [
+class Plugin(plugins_core.BasePlugin):
+    names: list[str] = [
         "import",
         "use",
         "load",
@@ -16,18 +17,14 @@ class Plugin:
         "Alias for #include .c/.h sources and the main transpiler for .cee sources"
     )
 
-    @staticmethod
-    def is_command_valid(command: cee_core.CeeCommand) -> bool:
-        if command.arguments.strip() != "":
+    def is_command_valid(self) -> bool:
+        if self.command.arguments.strip() != "":
             return False
         return True
 
-    @staticmethod
-    def get_proposed_changes(
-        command: cee_core.CeeCommand,
-    ) -> cee_core.SourceCodeChanges:
+    def get_proposed_changes(self) -> cee_core.SourceCodeChanges:
         libs: list[str] = [
-            lib.strip() for lib in command.body.strip()[1:-1].strip().split(",")
+            lib.strip() for lib in self.command.body.strip()[1:-1].strip().split(",")
         ]
 
         includes: list[str] = []

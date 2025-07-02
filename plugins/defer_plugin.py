@@ -1,33 +1,28 @@
 import cee_core
 from plugins import func_plugin
+import plugins_core
 
 
-class Plugin:
-    name: str | list[str] = [
-        "defer",
-    ]
+class Plugin(plugins_core.BasePlugin):
+    names: list[str] = ["defer"]
     description: str = (
         "Responsible for guarantee that a function will be called before the "
         "end of context"
     )
 
-    @staticmethod
-    def is_command_valid(command: cee_core.CeeCommand) -> bool:
-        if not command.arguments.strip():
+    def is_command_valid(self) -> bool:
+        if not self.command.arguments.strip():
             return False
         return True
 
-    @staticmethod
-    def get_proposed_changes(
-        command: cee_core.CeeCommand,
-    ) -> cee_core.SourceCodeChanges:
-        for name in func_plugin.Plugin.name:
-            if f"@{name}" in command.body:
+    def get_proposed_changes(self) -> cee_core.SourceCodeChanges:
+        for name in func_plugin.Plugin.names:
+            if f"@{name}" in self.command.body:
                 raise NotImplementedError("Inner functions aren't supported yet")
         final_source_lines: list[str] = []
-        body_source: str = command.body[1:-1]
+        body_source: str = self.command.body[1:-1]
         lines: list[str] = [i for i in body_source.split("\n") if i.strip()]
-        command_to_include: str = command.arguments.strip()
+        command_to_include: str = self.command.arguments.strip()
         if not command_to_include.endswith(";"):
             command_to_include += ";"
         return_in_last_line: bool = False

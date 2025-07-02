@@ -32,13 +32,16 @@ def get_color_text(text: str, color: str):
 
 def show_help():
     for plugin_class in cee_utils.get_plugins():
-        plugin_name, *other_names = plugin_class.name
+        other_names: list[str] = []
+        plugin_name: str = plugin_class.names[0]
+        if len(plugin_class.names) > 1:
+            other_names = plugin_class.names[1:]
         description = getattr(plugin_class, "description", "")
         header = get_color_text(plugin_name, Color.BOLD)
         if description:
             header += f" - {description}"
         print(header)
-        if len(plugin_class.name) > 1:
+        if len(plugin_class.names) > 1:
             print(
                 "    Can be used with the aliases: "
                 f"{get_color_text(', '.join(other_names), Color.PURPLE)}"

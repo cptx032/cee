@@ -111,7 +111,7 @@ def get_position_after_import_block(source: str) -> int | None:
                     inner_cee_command_level -= 1
                 elif inner_cee_command_level == 0:
                     command_name = cee_command.split()[0].strip()
-                    if command_name in import_plugin.Plugin.name:
+                    if command_name in import_plugin.Plugin.names:
                         state = cee_core.IncludeState.SEARCHING
                         last_cee_command_pos = -1
                         cee_command = ""
@@ -122,11 +122,8 @@ def get_position_after_import_block(source: str) -> int | None:
 
 
 def get_cee_command(
-    source_code: str, cee_keywords: str | list[str]
+    source_code: str, cee_keywords: list[str]
 ) -> cee_core.CeeCommand | None:
-    if type(cee_keywords) is str:
-        cee_keywords = [cee_keywords]
-
     cee_keyword: str | None = None
     index: int = -1
     for keyword in cee_keywords:
@@ -232,14 +229,15 @@ def transpile_cee_source(input_file_path: str) -> str:
     with open(input_file_path) as source_c_file:
         source_content = source_c_file.read()
 
-    for plugin in get_plugins():
-        while command := get_cee_command(source_content, plugin.name):
-            if not plugin.is_command_valid(command):
+    for plugin_class in get_plugins():
+        while command := get_cee_command(source_content, plugin_class.names):
+            plugin_instance = plugin_class(command)
+            if not plugin_instance.is_command_valid():
                 print("Invalid Command")
                 break
 
-            changes_to_do: cee_core.SourceCodeChanges = plugin.get_proposed_changes(
-                command
+            changes_to_do: cee_core.SourceCodeChanges = (
+                plugin_instance.get_proposed_changes()
             )
             if not changes_to_do.is_valid():
                 print("Invalid Changes")

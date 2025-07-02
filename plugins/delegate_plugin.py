@@ -1,21 +1,18 @@
 import cee_core
+import plugins_core
 
 
-class Plugin:
-    name: str | list[str] = ["delegate"]
+class Plugin(plugins_core.BasePlugin):
+    names: list[str] = ["delegate"]
     description: str = "Alias for defining pointers to functions"
 
-    @staticmethod
-    def is_command_valid(command: cee_core.CeeCommand) -> bool:
+    def is_command_valid(self) -> bool:
         return True
 
-    @staticmethod
-    def get_proposed_changes(
-        command: cee_core.CeeCommand,
-    ) -> cee_core.SourceCodeChanges:
-        delegate_name: str = command.arguments.strip()
+    def get_proposed_changes(self) -> cee_core.SourceCodeChanges:
+        delegate_name: str = self.command.arguments.strip()
         function_types: list[str] = [
-            _type.strip() for _type in command.body.strip()[1:-1].split(",")
+            _type.strip() for _type in self.command.body.strip()[1:-1].split(",")
         ]
         if not function_types:
             function_types = ["void", "void"]

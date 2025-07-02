@@ -2,6 +2,7 @@ from typing import Any, cast
 import cee_core
 import json
 import linked_list_utils as llu
+import plugins_core
 
 """
 Usage:
@@ -13,8 +14,8 @@ Usage:
 """
 
 
-class Plugin:
-    name: str | list[str] = ["ll", "linkedlist"]
+class Plugin(plugins_core.BasePlugin):
+    names: list[str] = ["ll", "linkedlist"]
     # fixme > when finding a bool field, include the stdbool in the include list
     allowed_types: tuple[str, ...] = ("char*", "float", "double", "int", "bool")
     description: str = "Creates a linked list with the specified fields"
@@ -58,9 +59,8 @@ class Plugin:
             final_format_fields.append(field_item)
         return final_format_fields
 
-    @staticmethod
-    def is_command_valid(command: cee_core.CeeCommand) -> bool:
-        fields: list | None = Plugin.get_fields(command)
+    def is_command_valid(self) -> bool:
+        fields: list | None = Plugin.get_fields(self.command)
         if not fields:
             return False
 
@@ -72,13 +72,10 @@ class Plugin:
                 return False
         return True
 
-    @staticmethod
-    def get_proposed_changes(
-        command: cee_core.CeeCommand,
-    ) -> cee_core.SourceCodeChanges:
+    def get_proposed_changes(self) -> cee_core.SourceCodeChanges:
         return cee_core.SourceCodeChanges(
             replacement_text=llu.get_linked_list_source(
-                name=Plugin.get_ll_name(command),
-                fields=cast(list, Plugin.get_fields(command)),
+                name=Plugin.get_ll_name(self.command),
+                fields=cast(list, Plugin.get_fields(self.command)),
             )
         )
