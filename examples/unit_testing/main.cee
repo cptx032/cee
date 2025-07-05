@@ -1,0 +1,19 @@
+@import {stdio}
+
+@fn sum(a: int, b: int) -> int {
+    return a + b
+}
+
+@once {
+    @fn main() -> int {
+        printf("2 + 5 = %d\n", sum(2, 5))
+        return 0
+    }
+}
+
+@test "if the sum function is working properly" {
+    if (sum(2, 3) != 5) {
+        return false
+    }
+    return true
+}

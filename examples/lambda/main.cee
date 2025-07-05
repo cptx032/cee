@@ -7,10 +7,12 @@
 }
 
 @fn main() int {
-    int number = 3
-    bool result = filter_number(@fn (int number) bool {
-        return (number % 2) == 0
-    }, number)
-    printf("number = %d, result = %d\n", number, result)
-    return 0
+    @defer printf("%s\n", "ProgramEnd") {
+        int number = 3
+        bool result = filter_number(@fn (int number) bool {
+            return (number % 2) == 0
+        }, number)
+        printf("number = %d, result = %d\n", number, result)
+        return 0
+    }
 }

@@ -11,8 +11,7 @@
 
 {%- block codeblock %}
 
-typedef struct {{ name }}
-{
+typedef struct {{ name }} {
     {%- for field in fields %}
     {{ field.type }} {{ field.name }};
     {%- endfor %}
@@ -25,18 +24,15 @@ typedef struct {{ name }}
 } {{ name }};
 
 
-bool {{ name | lower}}_is_empty({{ name }} *start)
-{
-    if (!start)
-    {
+bool {{ name | lower}}_is_empty({{ name }} *start) {
+    if (!start) {
         return true;
     }
     return start->first->length == 0;
 }
 
 {% block object_creation %}
-{{ name }} *{{ name|lower }}_new(Arena *arena)
-{
+{{ name }} *{{ name|lower }}_new(Arena *arena) {
 {%- with var_name="new_"+name.lower() %}
     {{ name }} *{{ var_name }} = arena_malloc(arena, sizeof({{ name }}));
 
@@ -54,9 +50,7 @@ bool {{ name | lower}}_is_empty({{ name }} *start)
 }
 {% endblock %}
 
-void {{ name|lower }}_append_object(
-    {{ name }} *start, {{ name }}* object
-) {
+void {{ name|lower }}_append_object({{ name }} *start, {{ name }}* object) {
     if (!start) {
         return;
     }
@@ -82,9 +76,7 @@ void {{ name|lower }}_append_object(
     {{ name }} *start,
     {%- for field in fields %}
     {{ field.type }} {{ field.name }}{% if not loop.last %},{% endif %}
-    {%- endfor %}
-)
-{
+    {%- endfor %}) {
     if (!start) {
         return NULL;
     }
@@ -122,8 +114,7 @@ void {{ name|lower }}_append_object(
     return new_node;
 }
 
-{{ name }} *{{ name|lower }}_choice({{name}} *start)
-{
+{{ name }} *{{ name|lower }}_choice({{name}} *start) {
     if (start->length <= 0) {
         return NULL;
     }
@@ -140,9 +131,7 @@ void {{ name|lower }}_append_object(
 }
 
 void {{ name | lower }}_foreach(
-    {{ name }} *start, void (*item_handler)({{ name  }}*, int index)
-)
-{
+    {{ name }} *start, void (*item_handler)({{ name  }}*, int index)) {
     {{ name }}* head = start;
     if (!item_handler) {
         return;
@@ -170,9 +159,7 @@ bool {{ name|lower }}_equal_by_natural_key(
         {%- set _ = items.append(field.type ~ ' ' ~ field.name) -%}
       {%- endif -%}
     {%- endfor -%}
-    {{ items | join(', ') }}
-)
-{
+    {{ items | join(', ') }}) {
     if (!start) {
         return false;
     }
@@ -200,9 +187,7 @@ bool {{ name|lower }}_equal_by_natural_key(
         {%- set _ = items.append(field.type ~ ' ' ~ field.name) -%}
       {%- endif -%}
     {%- endfor -%}
-    {{ items | join(', ') }}
-)
-{
+    {{ items | join(', ') }}) {
     while(start && !{{ name|lower }}_is_empty(start)) {
         if ({{ name|lower }}_equal_by_natural_key(start, {{ fields | selectattr("natural_key", "equalto", true) | map(attribute="name") | join(", ") }})) {
             return start;
@@ -221,8 +206,7 @@ bool {{ name|lower }}_contains_by_natural_key(
         {%- set _ = items.append(field.type ~ ' ' ~ field.name) -%}
       {%- endif -%}
     {%- endfor -%}
-    {{ items | join(', ') }}
-) {
+    {{ items | join(', ') }}) {
     {{ name }} *found = {{ name|lower }}_get_one_by_natural_key(start, {{ fields | selectattr("natural_key", "equalto", true) | map(attribute="name") | join(", ") }});
     if (found) {
         return true;

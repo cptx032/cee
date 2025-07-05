@@ -1,15 +1,9 @@
 #!/usr/bin/env python3
+import cee_modes
 import shutil
 import cee_utils
 import os
 import argparse
-import enum
-
-
-class ModeEnum(enum.StrEnum):
-    BUILD = "build"
-    TEST = "test"
-    HELP = "help"
 
 
 class Color:
@@ -52,7 +46,7 @@ def show_help():
 def main() -> None:
     parser = argparse.ArgumentParser(description="CEE - C Extended Expressions")
     parser.add_argument(
-        "mode", choices=[e.value for e in ModeEnum], help="Mode of operation"
+        "mode", choices=[e.value for e in cee_modes.ModeEnum], help="Mode of operation"
     )
     parser.add_argument(
         "args",
@@ -61,13 +55,13 @@ def main() -> None:
     )
     args = parser.parse_args()
     match args.mode:
-        case ModeEnum.BUILD:
+        case cee_modes.ModeEnum.BUILD:
             clear_cee_folder()
             cmd_arguments = map(process_cee_file_from_cmd, args.args)
             command_to_run = " ".join(cmd_arguments)
             print(f"Running {command_to_run}")
             os.system(command_to_run)
-        case ModeEnum.HELP:
+        case cee_modes.ModeEnum.HELP:
             show_help()
 
 

@@ -1,6 +1,7 @@
 from pathlib import Path
+import parser_utils
 import importlib.util
-from plugins import import_plugin
+
 import glob
 import os
 import string
@@ -8,6 +9,7 @@ import importlib
 from typing import Type
 import cee_core
 import random
+import cee_modes
 
 
 def get_cee_folder() -> str:
@@ -65,60 +67,6 @@ def is_cee_keyword_valid(cee_keyword: str) -> bool:
         if c not in string.ascii_lowercase:
             return False
     return True
-
-
-def get_position_after_import_block(source: str) -> int | None:
-    # fixme > move the dataclasses to other place to avoid this ciclic import
-    state: cee_core.IncludeState = cee_core.IncludeState.SEARCHING
-    last_char: str | None = None
-    blank_chars = " \t\n"
-    inner_cee_command_level = 0
-    cee_command = ""
-    last_cee_command_pos = -1
-    for pos, c in enumerate(source):
-        if state == cee_core.IncludeState.SEARCHING:
-            if c == "/":
-                state = cee_core.IncludeState.POSSIBLE_COMMENT
-            elif c == "#":
-                state = cee_core.IncludeState.INSIDE_MACRO
-            elif c == cee_core.CEE_STARTING_CHAR:
-                state = cee_core.IncludeState.INSIDE_CEE_COMMAND
-                last_cee_command_pos = pos
-            elif c not in blank_chars:
-                return pos - 1
-        elif state == cee_core.IncludeState.POSSIBLE_COMMENT:
-            if c == "/":
-                state = cee_core.IncludeState.INSIDE_ONE_LINE_COMMENT
-            elif c == "*":
-                state = cee_core.IncludeState.INSIDE_MULTI_LINE_COMMENT
-        elif state == cee_core.IncludeState.INSIDE_ONE_LINE_COMMENT:
-            if c == "\n":
-                state = cee_core.IncludeState.SEARCHING
-        elif state == cee_core.IncludeState.INSIDE_MACRO:
-            if c == "\n":
-                # fixme > handle multiline macros
-                state = cee_core.IncludeState.SEARCHING
-        elif state == cee_core.IncludeState.INSIDE_MULTI_LINE_COMMENT:
-            if c == "/" and last_char == "*":
-                state = cee_core.IncludeState.SEARCHING
-        elif state == cee_core.IncludeState.INSIDE_CEE_COMMAND:
-            cee_command += c
-
-            if c == cee_core.CEE_STARTING_CHAR:
-                inner_cee_command_level += 1
-            elif c == "}":
-                if inner_cee_command_level >= 1:
-                    inner_cee_command_level -= 1
-                elif inner_cee_command_level == 0:
-                    command_name = cee_command.split()[0].strip()
-                    if command_name in import_plugin.Plugin.names:
-                        state = cee_core.IncludeState.SEARCHING
-                        last_cee_command_pos = -1
-                        cee_command = ""
-                    else:
-                        return last_cee_command_pos
-        last_char = c
-    return None
 
 
 def get_cee_command(
@@ -209,7 +157,7 @@ def replace_source(source: str, start: int, end: int, new_source: str) -> str:
 
 
 def include_new_function(source_content: str, new_functions: str) -> str:
-    position: int = get_position_after_import_block(source_content) or 0
+    position: int = parser_utils.get_position_after_import_block(source_content) or 0
     return (
         source_content[:position]
         + "\n"
@@ -231,7 +179,7 @@ def transpile_cee_source(input_file_path: str) -> str:
 
     for plugin_class in get_plugins():
         while command := get_cee_command(source_content, plugin_class.names):
-            plugin_instance = plugin_class(command)
+            plugin_instance = plugin_class(command, cee_modes.ModeEnum)
             if not plugin_instance.is_command_valid():
                 print("Invalid Command")
                 break
@@ -272,7 +220,7 @@ def include_semicolon_in_body(command: cee_core.CeeCommand) -> None:
         if not line.strip():
             final_source.append(line)
         # commads that not end in this line
-        elif line.strip()[-1] in ",{}=;":
+        elif line.strip()[-1] in ",{}=;(":
             final_source.append(line)
         # comments
         elif line.strip().startswith("//"):

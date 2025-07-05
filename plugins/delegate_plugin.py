@@ -3,7 +3,7 @@ import plugins_core
 
 
 class Plugin(plugins_core.BasePlugin):
-    names: list[str] = ["delegate"]
+    names: list[str] = ["delegate", "functor", "handler", "callback"]
     description: str = "Alias for defining pointers to functions"
 
     def is_command_valid(self) -> bool:

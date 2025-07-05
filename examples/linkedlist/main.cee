@@ -1,13 +1,6 @@
-@import {stdlib, stdio, stdbool, Arena.cee}
-
-@ll StringList {
-    "value": "char*"
-}
+@import {stdlib, stdio, stdbool, Arena.cee, stringlist.cee}
 
 @once {
-    @fn stringlist_print(StringList* head, int index) {
-        printf("%d - %s\n", index, head->value);
-    }
     @fn main() -> int {
         @defer arena_free(arena) {
             Arena* arena = arena_new()
@@ -23,14 +16,18 @@
             printf("Last: %s\n", my_string_list->last->value);
 
             printf("\n%s\n", "Iterating:");
-            stringlist_foreach(my_string_list, stringlist_print);
+            stringlist_foreach(my_string_list, @fn (StringList* head, int index) {
+                printf("%d - %s\n", index, head->value);
+            });
 
             printf("%s\n", "Appending using an object")
             StringList* an_item = stringlist_new(arena)
             an_item->value = "John"
             stringlist_append_object(my_string_list->first, an_item)
             printf("\n%s\n", "Iterating:");
-            stringlist_foreach(my_string_list, stringlist_print);
+            stringlist_foreach(my_string_list, @fn (StringList* head, int index) {
+                printf("%d - %s\n", index, head->value);
+            });
             return 0
         }
     }
