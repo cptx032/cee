@@ -1,6 +1,7 @@
 from pathlib import Path
 import parser_utils
 import importlib.util
+import cee_exceptions
 
 import glob
 import os
@@ -180,16 +181,19 @@ def transpile_cee_source(input_file_path: str) -> str:
     for plugin_class in get_plugins():
         while command := get_cee_command(source_content, plugin_class.names):
             plugin_instance = plugin_class(command, cee_modes.ModeEnum)
+            # deprecated: do the validations inside the get_proposed_changes
             if not plugin_instance.is_command_valid():
-                print("Invalid Command")
-                break
+                raise ValueError(f"Invalid Command: {plugin_class} - {command}")
 
-            changes_to_do: cee_core.SourceCodeChanges = (
-                plugin_instance.get_proposed_changes()
-            )
+            try:
+                changes_to_do: cee_core.SourceCodeChanges = (
+                    plugin_instance.get_proposed_changes()
+                )
+            except cee_exceptions.InvalidCommand:
+                raise
+
             if not changes_to_do.is_valid():
-                print("Invalid Changes")
-                break
+                raise ValueError(f"Invalid Changes: {changes_to_do}")
 
             if changes_to_do.replacement_text:
                 source_content = replace_source(
