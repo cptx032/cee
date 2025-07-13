@@ -1,0 +1,46 @@
+@import {
+    stdio,
+    stdlib,
+    fcntl,
+    unistd,
+    string
+}
+
+@with set-map {
+    "my_open": {
+        "type": "int",
+        "deallocator": "my_close"
+    }
+}
+
+@fn my_open(const char* path) -> int {
+    return open(path, O_RDWR | O_CREAT, 0644)
+}
+
+@fn my_close(int fd) -> int {
+    return close(fd)
+}
+
+@fn main() -> int {
+    // Example 1: Basic file handling
+    @with fopen("test.txt", "r") as file {
+        char buffer[100]
+        fgets(buffer, sizeof(buffer), file)
+        printf("Read: %s", buffer)
+    }
+    
+    // Example 2: Memory allocation
+    @with malloc(100) as ptr {
+        // Use the allocated memory
+        memset(ptr, 0, 100)
+        printf("Memory allocated and initialized\n")
+    }
+    
+    // Example 3: Custom mapping
+    
+    @with my_open("test.txt") as custom_file {
+        printf("Using custom open/close functions\n")
+    }
+    
+    return 0
+} 

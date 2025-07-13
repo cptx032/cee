@@ -30,7 +30,13 @@ class SourceCodeChanges:
     new_functions: str | None = None
 
     def is_valid(self) -> bool:
-        return any([self.replacement_text, self.new_imports, self.new_functions])
+        return any(
+            [
+                self.replacement_text is not None,
+                self.new_imports is not None,
+                self.new_functions is not None,
+            ]
+        )
 
 
 class IncludeState(enum.StrEnum):

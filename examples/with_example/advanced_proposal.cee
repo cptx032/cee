@@ -1,0 +1,78 @@
+@import {
+    stdio,
+    stdlib,
+    string,
+    pthread,
+    semaphore,
+    sys/socket,
+    netinet/in
+}
+
+int main() {
+    // Example 1: File operations with error handling
+    @with fopen("data.txt", "w") as file {
+        if (file == NULL) {
+            fprintf(stderr, "Failed to open file\n");
+            return 1;
+        }
+        fprintf(file, "Hello, World!\n");
+        printf("Data written to file\n");
+    }
+    
+    // Example 2: Multiple memory allocations
+    @with malloc(1024) as buffer1 {
+        @with malloc(512) as buffer2 {
+            strcpy(buffer1, "First buffer");
+            strcpy(buffer2, "Second buffer");
+            printf("Using two buffers: %s and %s\n", buffer1, buffer2);
+        }
+        printf("buffer2 is now freed\n");
+    }
+    
+    // Example 3: Socket operations
+    @with socket(AF_INET, SOCK_STREAM, 0) as sock {
+        if (sock < 0) {
+            perror("Socket creation failed");
+            return 1;
+        }
+        printf("Socket created successfully\n");
+        
+        struct sockaddr_in addr;
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(8080);
+        addr.sin_addr.s_addr = INADDR_ANY;
+        
+        if (bind(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+            perror("Bind failed");
+            return 1;
+        }
+        printf("Socket bound to port 8080\n");
+    }
+    
+    // Example 4: Thread synchronization
+    @with sem_init(&sem, 0, 1) {
+        printf("Semaphore initialized\n");
+        sem_wait(&sem);
+        printf("Critical section\n");
+        sem_post(&sem);
+    }
+    
+    // Example 5: Custom resource mapping
+    @set-map {
+        "database_connect": "database_disconnect",
+        "lock_acquire": "lock_release",
+        "transaction_begin": "transaction_commit"
+    }
+    
+    @with database_connect("localhost", 5432) as db {
+        @with transaction_begin(db) as tx {
+            printf("Database transaction started\n");
+            // Perform database operations
+            printf("Database operations completed\n");
+        }
+        printf("Transaction committed\n");
+    }
+    printf("Database disconnected\n");
+    
+    return 0;
+} 

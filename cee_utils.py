@@ -195,7 +195,7 @@ def transpile_cee_source(input_file_path: str) -> str:
             if not changes_to_do.is_valid():
                 raise ValueError(f"Invalid Changes: {changes_to_do}")
 
-            if changes_to_do.replacement_text:
+            if changes_to_do.replacement_text is not None:
                 source_content = replace_source(
                     source_content,
                     command.start_pos,
@@ -215,16 +215,17 @@ def transpile_cee_source(input_file_path: str) -> str:
     return new_file_name
 
 
-def include_semicolon_in_body(command: cee_core.CeeCommand) -> None:
+def add_semicolons_to_source(source: str) -> str:
+    """Add semicolons to lines that need them in a source code string."""
     # fixme > implement the Microsoft way of using curly-braces
     # fixme > do not include semicolons inside another cee command
-    source_lines: list[str] = command.body.split("\n")
+    source_lines: list[str] = source.split("\n")
     final_source: list[str] = []
     for line in source_lines:
         # empty line
         if not line.strip():
             final_source.append(line)
-        # commads that not end in this line
+        # commands that not end in this line
         elif line.strip()[-1] in ",{}=;(":
             final_source.append(line)
         # comments
@@ -236,4 +237,9 @@ def include_semicolon_in_body(command: cee_core.CeeCommand) -> None:
             final_source.append(line)
         else:
             final_source.append(f"{line};")
-    command.body = "\n".join(final_source)
+    return "\n".join(final_source)
+
+
+def include_semicolon_in_body(command: cee_core.CeeCommand) -> None:
+    """Add semicolons to the body of a CEE command."""
+    command.body = add_semicolons_to_source(command.body)

@@ -29,17 +29,11 @@ class Plugin(plugins_core.BasePlugin):
             for index in instance_indexes:
                 start = self.command.body.find("{", index + len(cee_command))
                 if start == -1:
-                    raise ValueError(
-                        "It was not possible to parse inner function"
-                    )
+                    raise ValueError("It was not possible to parse inner function")
 
-                end = parser_utils.find_closing_brackets(
-                    self.command.body, start
-                )
+                end = parser_utils.find_closing_brackets(self.command.body, start)
                 if end is None:
-                    raise ValueError(
-                        "It was not possible to parse inner function"
-                    )
+                    raise ValueError("It was not possible to parse inner function")
 
                 ignore_regions.append((start, end))
 
@@ -49,7 +43,8 @@ class Plugin(plugins_core.BasePlugin):
         self, ignore_regions: list[tuple[int, int]], indexes: list[int]
     ) -> list[int]:
         return [
-            index for index in indexes
+            index
+            for index in indexes
             if not any(start <= index <= end for start, end in ignore_regions)
         ]
 
@@ -68,8 +63,7 @@ class Plugin(plugins_core.BasePlugin):
         command_to_include = self.get_defer_command()
         ignore_regions = self.get_ignore_regions()
         return_indexes = self.get_valid_indexes(
-            ignore_regions,
-            parser_utils.find_substring_indexes(body_source, "return")
+            ignore_regions, parser_utils.find_substring_indexes(body_source, "return")
         )
 
         command_vars = self._extract_command_variables(command_to_include)
@@ -77,7 +71,9 @@ class Plugin(plugins_core.BasePlugin):
         warnings = self._detect_variable_collisions(return_expr_map, command_vars)
 
         # Apply insertions
-        new_body = self._insert_commands(body_source, return_indexes, command_to_include)
+        new_body = self._insert_commands(
+            body_source, return_indexes, command_to_include
+        )
 
         if not self.is_last_line_a_return(new_body):
             new_body += "\n" + command_to_include
@@ -88,28 +84,32 @@ class Plugin(plugins_core.BasePlugin):
         return cee_core.SourceCodeChanges(replacement_text=new_body)
 
     def _extract_command_variables(self, command: str) -> list[str]:
-        match = re.search(r'\((.*?)\)', command)
+        match = re.search(r"\((.*?)\)", command)
         if not match:
             return []
         raw_args = match.group(1)
-        return [v.strip() for v in raw_args.split(',') if v.strip()]
+        return [v.strip() for v in raw_args.split(",") if v.strip()]
 
-    def _map_return_expressions(self, source: str, valid_indexes: list[int]) -> dict[int, str]:
+    def _map_return_expressions(
+        self, source: str, valid_indexes: list[int]
+    ) -> dict[int, str]:
         expr_map = {}
-        regex = re.compile(r'\breturn\s+(.*?)(?:;|\n|$)', re.DOTALL)
+        regex = re.compile(r"\breturn\s+(.*?)(?:;|\n|$)", re.DOTALL)
         for match in regex.finditer(source):
             start = match.start()
             if start in valid_indexes:
                 expr = match.group(1).strip()
-                expr = re.sub(r'//.*$', '', expr).strip()  # strip line comments
+                expr = re.sub(r"//.*$", "", expr).strip()  # strip line comments
                 expr_map[start] = expr
         return expr_map
 
-    def _detect_variable_collisions(self, return_expr_map: dict[int, str], command_vars: list[str]) -> list[str]:
+    def _detect_variable_collisions(
+        self, return_expr_map: dict[int, str], command_vars: list[str]
+    ) -> list[str]:
         warnings = []
         for index, expr in return_expr_map.items():
             for var in command_vars:
-                if re.search(r'\b' + re.escape(var) + r'\b', expr):
+                if re.search(r"\b" + re.escape(var) + r"\b", expr):
                     warnings.append(
                         f"⚠️ Warning: variable '{var}' is used in both the defer command and the return expression at index {index}."
                     )
@@ -125,6 +125,4 @@ class Plugin(plugins_core.BasePlugin):
             parts.append(insertions[i])
             last_index = i
         parts.append(source[last_index:])
-        return ''.join(parts)
-
-
+        return "".join(parts)
